@@ -146,13 +146,16 @@ class ImportPoEditorStringsTask extends DefaultTask {
         }
     }
 
-    def removeEmptyNodes(XmlParser xmlParser) {
-        def emptyNodes = xmlParser.depthFirst()
-                .findAll { it.children().size() == 0 }
+    String removeEmptyNodes(Node rootNode) {
+        def emptyNodes = rootNode.children().findAll {
+            return it.name() == "string" && it.value().size() == 0
+        }
 
         emptyNodes.each {
-            xmlParser.remove(it)
+            rootNode.remove(it)
         }
+
+        return null
     }
 
     /**
