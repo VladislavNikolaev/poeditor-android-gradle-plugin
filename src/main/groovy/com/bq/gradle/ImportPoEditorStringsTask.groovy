@@ -24,12 +24,14 @@ class ImportPoEditorStringsTask extends DefaultTask {
         def projectId = ""
         def defaultLang = ""
         def resDirPath = ""
+        def generateTabletRes = false
 
         try {
             apiToken = project.extensions.poEditorPlugin.api_token
             projectId = project.extensions.poEditorPlugin.project_id
             defaultLang = project.extensions.poEditorPlugin.default_lang
             resDirPath = project.extensions.poEditorPlugin.res_dir_path
+            generateTabletRes = project.extensions.poEditorPlugin.generate_tablet_res
 
             if (apiToken.length() == 0)
                 throw new Exception('Invalid params: api_token is ""');
@@ -43,11 +45,11 @@ class ImportPoEditorStringsTask extends DefaultTask {
         } catch (Exception e) {
             throw new IllegalStateException(
                     "You shoud define in your build.gradle: \n\n" +
-                    "poEditorPlugin.api_token = <your_api_token>\n" +
-                    "poEditorPlugin.project_id = <your_project_id>\n" +
-                    "poEditorPlugin.default_lang = <your_default_lang> \n" +
-                    "poEditorPlugin.res_dir_path = <your_res_dir_path> \n\n "
-                    + e.getMessage()
+                            "poEditorPlugin.api_token = <your_api_token>\n" +
+                            "poEditorPlugin.project_id = <your_project_id>\n" +
+                            "poEditorPlugin.default_lang = <your_default_lang> \n" +
+                            "poEditorPlugin.res_dir_path = <your_res_dir_path> \n\n "
+                            + e.getMessage()
             )
             return
         }
@@ -133,6 +135,10 @@ class ImportPoEditorStringsTask extends DefaultTask {
             new File(stringsFolder, 'strings.xml').withWriter { w ->
                 w << curatedStringsXmlText
             }
+
+            if (!generateTabletRes) {
+                return
+            }
             println "Writing tablet strings.xml file"
             new File(tabletStringsFolder, 'strings.xml').withWriter { w ->
                 w << curatedTabletStringsXmlText
@@ -157,25 +163,25 @@ class ImportPoEditorStringsTask extends DefaultTask {
     String postProcessIncomingXMLString(String incomingXMLString) {
         // Post process the downloaded XML
         return incomingXMLString
-                // Replace % with %%
+        // Replace % with %%
                 .replace("%", "%%")
-                // Replace &lt; with < and &gt; with >
+        // Replace &lt; with < and &gt; with >
                 .replace("&lt;", "<").replace("&gt;", ">")
-                // Replace placeholders from {{bookTitle}} to %1$s format.
-                // First of all, manage each strings separately
+        // Replace placeholders from {{bookTitle}} to %1$s format.
+        // First of all, manage each strings separately
                 .split('</string>').collect { s ->
-                    // Second, replace each placeholder taking into account ther order set as part of the placeholder
-                    def placeHolderInStringCounter = 1
-                    s.replaceAll("\\{\\d?\\{(.*?)\\}\\}") { it ->
-                        // If the placeholder contains an ordinal, use it: {2{pages_count}} -> %2%s
-                        def match = it[0].toString()
-                        if (Character.isDigit(match.charAt(1))) {
-                            '%' + match.charAt(1) + '$s'
-                        } else { // If not, use '1' as the ordinal: {{pages_count}} -> %1%s
-                            '%1$s'
-                        }
-                    }
-                }.join('</string>')
+            // Second, replace each placeholder taking into account ther order set as part of the placeholder
+            def placeHolderInStringCounter = 1
+            s.replaceAll("\\{\\d?\\{(.*?)\\}\\}") { it ->
+                // If the placeholder contains an ordinal, use it: {2{pages_count}} -> %2%s
+                def match = it[0].toString()
+                if (Character.isDigit(match.charAt(1))) {
+                    '%' + match.charAt(1) + '$s'
+                } else { // If not, use '1' as the ordinal: {{pages_count}} -> %1%s
+                    '%1$s'
+                }
+            }
+        }.join('</string>')
     }
 
 }
