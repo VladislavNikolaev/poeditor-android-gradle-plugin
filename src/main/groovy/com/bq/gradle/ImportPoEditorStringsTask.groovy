@@ -79,7 +79,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
             def translationFile = ['curl', '-X', 'GET', translationFileUrl].execute()
 
             // Post process the downloaded XML:
-            println translationFile.text
             def translationFileText = postProcessIncomingXMLString(translationFile.text)
 
             // Extract tablet strings to a separate strings XML
