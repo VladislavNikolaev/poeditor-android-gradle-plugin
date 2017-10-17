@@ -51,7 +51,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
                             "poEditorPlugin.res_dir_path = <your_res_dir_path> \n\n "
                             + e.getMessage()
             )
-            return
         }
 
         // Retrieve available languages from PoEditor
@@ -65,7 +64,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
                     "An error occurred while trying to export from PoEditor API: \n\n" +
                             langsJson.toString()
             )
-            return
         }
 
         // Iterate over every available language
@@ -81,10 +79,12 @@ class ImportPoEditorStringsTask extends DefaultTask {
             def translationFile = ['curl', '-X', 'GET', translationFileUrl].execute()
 
             // Post process the downloaded XML:
+            println translationFile.text
             def translationFileText = postProcessIncomingXMLString(translationFile.text)
 
             // Extract tablet strings to a separate strings XML
             def translationFileRecords = new XmlParser().parseText(translationFileText)
+            removeEmptyNodes(translationFileRecords)
             def tabletNodes = translationFileRecords.children().findAll {
                 it.@name.endsWith('_tablet')
             }
@@ -104,6 +104,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
             XmlNodePrinter np = new XmlNodePrinter(new PrintWriter(sw))
             np.print(translationFileRecords)
             def curatedStringsXmlText = sw.toString()
+
             StringWriter tabletSw = new StringWriter()
             XmlNodePrinter tabletNp = new XmlNodePrinter(new PrintWriter(tabletSw))
             tabletNp.print(tabletRecords)
@@ -143,6 +144,15 @@ class ImportPoEditorStringsTask extends DefaultTask {
             new File(tabletStringsFolder, 'strings.xml').withWriter { w ->
                 w << curatedTabletStringsXmlText
             }
+        }
+    }
+
+    def removeEmptyNodes(XmlParser xmlParser) {
+        def emptyNodes = xmlParser.depthFirst()
+                .findAll { it.children().size() == 0 }
+
+        emptyNodes.each {
+            xmlParser.remove(it)
         }
     }
 
