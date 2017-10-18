@@ -86,3 +86,5 @@ local\.properties
 gradle/wrapper/gradle-wrapper\.properties
 
 src/test/groovy/org/gradle/ImportPoEditorStringsTaskInternalTest\.java
+
+src/test/groovy/org/gradle/ImportPoEditorStringsTaskInternalTest\.groovy
