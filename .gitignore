@@ -80,3 +80,9 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+local\.properties
+
+gradle/wrapper/gradle-wrapper\.properties
+
+src/test/groovy/org/gradle/ImportPoEditorStringsTaskInternalTest\.java

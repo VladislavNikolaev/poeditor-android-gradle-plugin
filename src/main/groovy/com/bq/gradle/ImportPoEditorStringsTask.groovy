@@ -79,7 +79,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
             def translationFile = ['curl', '-X', 'GET', translationFileUrl].execute()
 
             // Post process the downloaded XML:
-            def translationFileText = postProcessIncomingXMLString(translationFile.text)
+            def translationFileText = translationFile.text
 
             // Extract tablet strings to a separate strings XML
             def translationFileRecords = new XmlParser().parseText(translationFileText)
@@ -170,30 +170,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
             String[] langParts = langCode.split("-")
             return langParts[0] + "-" + "r" + langParts[1].toUpperCase()
         }
-    }
-
-    String postProcessIncomingXMLString(String incomingXMLString) {
-        // Post process the downloaded XML
-        return incomingXMLString
-        // Replace % with %%
-                .replace("%", "%%")
-        // Replace &lt; with < and &gt; with >
-                .replace("&lt;", "<").replace("&gt;", ">")
-        // Replace placeholders from {{bookTitle}} to %1$s format.
-        // First of all, manage each strings separately
-                .split('</string>').collect { s ->
-            // Second, replace each placeholder taking into account ther order set as part of the placeholder
-            def placeHolderInStringCounter = 1
-            s.replaceAll("\\{\\d?\\{(.*?)\\}\\}") { it ->
-                // If the placeholder contains an ordinal, use it: {2{pages_count}} -> %2%s
-                def match = it[0].toString()
-                if (Character.isDigit(match.charAt(1))) {
-                    '%' + match.charAt(1) + '$s'
-                } else { // If not, use '1' as the ordinal: {{pages_count}} -> %1%s
-                    '%1$s'
-                }
-            }
-        }.join('</string>')
     }
 
 }
