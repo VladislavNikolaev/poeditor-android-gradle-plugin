@@ -54,8 +54,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
             )
         }
 
-        uploadDefaultStringsToPoEditor(apiToken, projectId, resDirPath, defaultLang)
-
         // Retrieve available languages from PoEditor
         def jsonSlurper = new JsonSlurper()
         def langs = ['curl', '-X', 'POST', '-d', "api_token=${apiToken}", '-d', 'action=list_languages', '-d', "id=${projectId}", POEDITOR_API_URL].execute()
@@ -189,7 +187,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
                                      " \"new\": \"new_{$date}\"," +
                                      "}\"",
                              POEDITOR_API_V2_UPLOAD_URL].execute()
-        println requestResult
+        println "uploadDefaultStringsToPoEditor requestResult: ${requestResult.text}"
     }
 
     /**
