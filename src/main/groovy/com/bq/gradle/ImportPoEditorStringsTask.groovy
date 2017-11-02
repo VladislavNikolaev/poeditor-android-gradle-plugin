@@ -14,6 +14,7 @@ import org.gradle.api.tasks.TaskAction
  */
 class ImportPoEditorStringsTask extends DefaultTask {
 
+    String POEDITOR_API_V2_UPLOAD_URL = 'https://api.poeditor.com/v2/projects/upload'
     String POEDITOR_API_URL = 'https://poeditor.com/api/'
 
     @TaskAction
@@ -53,9 +54,15 @@ class ImportPoEditorStringsTask extends DefaultTask {
             )
         }
 
+        uploadDefaultStringsToPoEditor(apiToken, projectId, resDirPath, defaultLang)
+
         // Retrieve available languages from PoEditor
         def jsonSlurper = new JsonSlurper()
-        def langs = ['curl', '-X', 'POST', '-d', "api_token=${apiToken}", '-d', 'action=list_languages', '-d', "id=${projectId}", POEDITOR_API_URL].execute()
+        def langs = ['curl', '-X', 'POST',
+                     '-d', "api_token=${apiToken}",
+                     '-d', 'action=list_languages',
+                     '-d', "id=${projectId}",
+                     POEDITOR_API_URL].execute()
         def langsJson = jsonSlurper.parseText(langs.text)
 
         // Check if the response was 200
@@ -68,10 +75,21 @@ class ImportPoEditorStringsTask extends DefaultTask {
 
         // Iterate over every available language
         langsJson.list.code.each {
+            def valuesModifier = createValuesModifierFromLangCode(it)
+            if(valuesModifier == defaultLang){
+                println "Translation file for default language code: ${it} was ignored"
+                return
+            }
             // Retrieve translation file URL for the given language
             println "Retrieving translation file URL for language code: ${it}"
             // TODO curl may not be installed in the host SO. Add a safe check and, if curl is not available, stop the process and print an error message
-            def translationFileInfo = ['curl', '-X', 'POST', '-d', "api_token=${apiToken}", '-d', 'action=export', '-d', "id=${projectId}", '-d', 'type=android_strings', '-d', "language=${it}", 'https://poeditor.com/api/'].execute()
+            def translationFileInfo = ['curl', '-X', 'POST',
+                                       '-d', "api_token=${apiToken}",
+                                       '-d', 'action=export',
+                                       '-d', "id=${projectId}",
+                                       '-d', 'type=android_strings',
+                                       '-d', "language=${it}",
+                                       POEDITOR_API_URL].execute()
             def translationFileInfoJson = jsonSlurper.parseText(translationFileInfo.text)
             def translationFileUrl = translationFileInfoJson.item
             // Download translation File in "Android Strings" XML format
@@ -111,8 +129,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
 
             // If language folders doesn't exist, create it (both for smartphones and tablets)
             // TODO investigate if we can infer the res folder path instead of passing it using poEditorPlugin.res_dir_path
-
-            def valuesModifier = createValuesModifierFromLangCode(it)
             def valuesFolder = valuesModifier != defaultLang ? "values-${valuesModifier}" : "values"
             File stringsFolder = new File("${resDirPath}/${valuesFolder}")
             if (!stringsFolder.exists()) {
@@ -158,15 +174,6 @@ class ImportPoEditorStringsTask extends DefaultTask {
         return null
     }
 
-    @TaskAction
-    def uploadDefaultStringsToPoEditor() {
-        def apiToken = project.extensions.poEditorPlugin.api_token
-        def projectId = project.extensions.poEditorPlugin.project_id
-        def resDirPath = project.extensions.poEditorPlugin.res_dir_path
-        def defaultLang = project.extensions.poEditorPlugin.default_lang
-        uploadDefaultStringsToPoEditor(apiToken, projectId, resDirPath, defaultLang)
-    }
-
     def uploadDefaultStringsToPoEditor(String apiToken,
                                        String projectId,
                                        String resDirPath,
@@ -181,10 +188,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
                              '-F', "file=@\"${filePath}\"",
                              '-F', "fuzzy_trigger=\"1\"",
                              '-F', "overwrite=\"1\"",
-                             '-F', "tags=\"{" +
-                                     "\"obsolete\":\"obsolete_{$date}\"," +
-                                     " \"new\": \"new_{$date}\"," +
-                                     "}\"",
+                             '-F', "tags={\"${date}\"}",
                              POEDITOR_API_V2_UPLOAD_URL].execute()
         println "uploadDefaultStringsToPoEditor requestResult: ${requestResult.text}"
     }
