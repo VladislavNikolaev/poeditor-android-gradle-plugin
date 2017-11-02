@@ -17,6 +17,8 @@ class PoEditorPlugin implements Plugin<Project> {
 
         // Registers the task
         project.task('importPoEditorStrings', type: ImportPoEditorStringsTask)
+
+        project.task('uploadDefaultStringsToPoEditor', type: UploadDefaultStringsToPoEditorTask)
     }
 
 }
