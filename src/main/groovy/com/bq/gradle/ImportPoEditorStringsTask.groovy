@@ -14,7 +14,6 @@ import org.gradle.api.tasks.TaskAction
  */
 class ImportPoEditorStringsTask extends DefaultTask {
 
-    String POEDITOR_API_V2_UPLOAD_URL = 'https://api.poeditor.com/v2/projects/upload'
     String POEDITOR_API_URL = 'https://poeditor.com/api/'
 
     @TaskAction
