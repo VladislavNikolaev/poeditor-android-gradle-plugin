@@ -54,7 +54,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
             )
         }
 
-        uploadDefaultStringsToPoEditor(apiToken, projectId, resDirPath, defaultLang)
+//        uploadDefaultStringsToPoEditor(apiToken, projectId, resDirPath, defaultLang)
 
         // Retrieve available languages from PoEditor
         def jsonSlurper = new JsonSlurper()
@@ -76,10 +76,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
         // Iterate over every available language
         langsJson.list.code.each {
             def valuesModifier = createValuesModifierFromLangCode(it)
-            if(valuesModifier == defaultLang){
-                println "Translation file for default language code: ${it} was ignored"
-                return
-            }
+
             // Retrieve translation file URL for the given language
             println "Retrieving translation file URL for language code: ${it}"
             // TODO curl may not be installed in the host SO. Add a safe check and, if curl is not available, stop the process and print an error message
