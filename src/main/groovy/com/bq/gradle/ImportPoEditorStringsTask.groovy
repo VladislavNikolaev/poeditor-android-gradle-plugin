@@ -73,8 +73,13 @@ class ImportPoEditorStringsTask extends DefaultTask {
             )
         }
 
+        def excludedLanguageCodes = project.extensions.poEditorPlugin.excluded_language_codes.split(" ")
+
         // Iterate over every available language
         langsJson.list.code.each {
+            if (excludedLanguageCodes.contains(it)) {
+                return
+            }
             def valuesModifier = createValuesModifierFromLangCode(it)
 
             // Retrieve translation file URL for the given language

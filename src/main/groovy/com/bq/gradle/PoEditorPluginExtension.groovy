@@ -17,4 +17,6 @@ class PoEditorPluginExtension {
     def String res_dir_path = ""
 
     def Boolean generate_tablet_res = false
+
+    def String excluded_language_codes = ""
 }
