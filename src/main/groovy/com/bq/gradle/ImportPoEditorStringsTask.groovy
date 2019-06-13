@@ -74,6 +74,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
         }
 
         def excludedLanguageCodes = project.extensions.poEditorPlugin.excluded_language_codes.split(" ")
+        def shouldReplaceBrandName = project.extensions.poEditorPlugin.replace_brand_name
 
         // Iterate over every available language
         langsJson.list.code.each {
@@ -104,6 +105,9 @@ class ImportPoEditorStringsTask extends DefaultTask {
             // Extract tablet strings to a separate strings XML
             def translationFileRecords = new XmlParser().parseText(translationFileText)
             removeEmptyNodes(translationFileRecords)
+            if (shouldReplaceBrandName) {
+                replaceValuesToLifedrive(translationFileRecords)
+            }
             def tabletNodes = translationFileRecords.children().findAll {
                 it.@name.endsWith('_tablet')
             }
@@ -164,7 +168,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
         }
     }
 
-    String removeEmptyNodes(Node rootNode) {
+    static String removeEmptyNodes(Node rootNode) {
         def emptyNodes = rootNode.children().findAll {
             return it.name() == "string" && it.value().size() == 0
         }
@@ -174,6 +178,14 @@ class ImportPoEditorStringsTask extends DefaultTask {
         }
 
         return null
+    }
+
+    String replaceValuesToLifedrive(Node rootNode) {
+        def brandNameOld = project.extensions.poEditorPlugin.brand_name_old
+        def brandNameNew = project.extensions.poEditorPlugin.brand_name_new
+        rootNode.children().each {
+            it.setValue(it.value().replace(brandNameOld, brandNameNew))
+        }
     }
 
     def uploadDefaultStringsToPoEditor(String apiToken,

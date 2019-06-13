@@ -19,4 +19,10 @@ class PoEditorPluginExtension {
     def Boolean generate_tablet_res = false
 
     def String excluded_language_codes = ""
+
+    def Boolean replace_brand_name = true
+
+    def String brand_name_old = ""
+
+    def String brand_name_new = ""
 }
