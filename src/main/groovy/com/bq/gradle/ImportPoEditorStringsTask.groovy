@@ -184,7 +184,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
         def brandNameOld = project.extensions.poEditorPlugin.brand_name_old
         def brandNameNew = project.extensions.poEditorPlugin.brand_name_new
         rootNode.children().each {
-            it.setValue(it.value().replace(brandNameOld, brandNameNew))
+            it.setValue(it.value().replaceAll(brandNameOld, brandNameNew))
         }
     }
 
