@@ -183,8 +183,16 @@ class ImportPoEditorStringsTask extends DefaultTask {
     String replaceValuesToLifedrive(Node rootNode) {
         def brandNameOld = project.extensions.poEditorPlugin.brand_name_old
         def brandNameNew = project.extensions.poEditorPlugin.brand_name_new
+        def brandNameOldUpperCase = brandNameOld.toUpperCase()
+        def brandNameNewUpperCase = brandNameNew.toUpperCase()
+        def brandNameOldCapitalized = brandNameOld.toLowerCase().capitalize()
+        def brandNameNewCapitalized = brandNameNew.toLowerCase().capitalize()
         rootNode.children().each {
-            it.setValue(it.value().replaceAll(brandNameOld, brandNameNew))
+            def resultValue = it.value()[0].replaceAll(brandNameOld, brandNameNew)
+                    .replaceAll(brandNameOldUpperCase, brandNameNewUpperCase)
+                    .replaceAll(brandNameOldCapitalized, brandNameNewCapitalized)
+                    .getChars()
+            it.setValue(resultValue)
         }
     }
 
