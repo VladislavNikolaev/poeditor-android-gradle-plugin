@@ -106,7 +106,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
             def translationFileRecords = new XmlParser().parseText(translationFileText)
             removeEmptyNodes(translationFileRecords)
             if (shouldReplaceBrandName) {
-                replaceValuesToLifedrive(translationFileRecords)
+                applyReplacementOfValues(translationFileRecords)
             }
             def tabletNodes = translationFileRecords.children().findAll {
                 it.@name.endsWith('_tablet')
@@ -180,7 +180,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
         return null
     }
 
-    String replaceValuesToLifedrive(Node rootNode) {
+    String applyReplacementOfValues(Node rootNode) {
         def keysExcludedForReplacement = project.extensions.poEditorPlugin.keys_excluded_for_replacement.split(" ")
 
         def brandNameOld = project.extensions.poEditorPlugin.brand_name_old
