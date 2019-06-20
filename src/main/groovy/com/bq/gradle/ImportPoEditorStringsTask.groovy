@@ -181,6 +181,8 @@ class ImportPoEditorStringsTask extends DefaultTask {
     }
 
     String replaceValuesToLifedrive(Node rootNode) {
+        def keysExcludedForReplacement = project.extensions.poEditorPlugin.keys_excluded_for_replacement.split(" ")
+
         def brandNameOld = project.extensions.poEditorPlugin.brand_name_old
         def brandNameNew = project.extensions.poEditorPlugin.brand_name_new
         def brandNameOldUpperCase = brandNameOld.toUpperCase()
@@ -188,6 +190,9 @@ class ImportPoEditorStringsTask extends DefaultTask {
         def brandNameOldCapitalized = brandNameOld.toLowerCase().capitalize()
         def brandNameNewCapitalized = brandNameNew.toLowerCase().capitalize()
         rootNode.children().each {
+            if (keysExcludedForReplacement.contains(it.attributes()["name"])) {
+                return
+            }
             def resultValue = it.value()[0].replaceAll(brandNameOld, brandNameNew)
                     .replaceAll(brandNameOldUpperCase, brandNameNewUpperCase)
                     .replaceAll(brandNameOldCapitalized, brandNameNewCapitalized)

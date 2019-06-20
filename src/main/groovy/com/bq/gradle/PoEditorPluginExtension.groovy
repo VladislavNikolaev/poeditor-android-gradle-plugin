@@ -25,4 +25,6 @@ class PoEditorPluginExtension {
     def String brand_name_old = ""
 
     def String brand_name_new = ""
+
+    def String keys_excluded_for_replacement = ""
 }
