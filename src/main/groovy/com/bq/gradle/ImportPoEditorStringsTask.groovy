@@ -1,7 +1,7 @@
 package com.bq.gradle
 
 import com.bq.gradle.data.API
-import com.bq.gradle.data.ExtentionModel
+import com.bq.gradle.data.ExtensionModel
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -18,7 +18,7 @@ class ImportPoEditorStringsTask extends DefaultTask {
     @SuppressWarnings("GroovyAssignabilityCheck")
     @TaskAction
     void importPoEditorStrings() {
-        def model = ExtentionModel.define(project)
+        def model = ExtensionModel.define(project)
         def api = new API(model)
         api.list_languages({ json ->
             json.list.code.each { lang_code ->

@@ -1,6 +1,7 @@
 package com.bq.gradle.data
 
-class ExtentionModel {
+@SuppressWarnings("GroovyAssignabilityCheck")
+class ExtensionModel {
     def apiToken = ""
     def projectId = ""
     def defaultLang = ""
@@ -15,7 +16,7 @@ class ExtentionModel {
     def brandNameOld
     def brandNameNew
 
-    private ExtentionModel(project, apiToken, projectId, defaultLang, resDirPath, generateTabletRes) {
+    private ExtensionModel(project, apiToken, projectId, defaultLang, resDirPath, generateTabletRes) {
         this.apiToken = apiToken
         this.projectId = projectId
         this.defaultLang = defaultLang
@@ -32,7 +33,7 @@ class ExtentionModel {
         new Builder()
     }
 
-    static ExtentionModel define(project) {
+    static ExtensionModel define(project) {
         def extensions = project.extensions
         try {
             builder().project(project)
@@ -63,6 +64,8 @@ class Builder {
     private def _defaultLang = ""
     private def _resDirPath = ""
     private def _generateTabletRes = false
+
+    protected Builder() {}
 
     def project(data) {
         _project = data
@@ -102,9 +105,10 @@ class Builder {
         this
     }
 
-    ExtentionModel build() {
-        new ExtentionModel(
-               project = _apiToken,
+    ExtensionModel build() {
+        new ExtensionModel(
+                project = _project,
+                apiToken = _apiToken,
                 projectId = _projectId,
                 defaultLang = _defaultLang,
                 resDirPath = _resDirPath,

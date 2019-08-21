@@ -9,7 +9,7 @@ class API {
 
     def model
 
-    API(ExtentionModel model) {
+    API(ExtensionModel model) {
         this.model = model
     }
 

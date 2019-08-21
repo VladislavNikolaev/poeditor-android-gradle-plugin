@@ -15,13 +15,13 @@ class ImportFromPoEditorToStringsTest {
         assertTrue(task instanceof ImportPoEditorStringsTask)
 
         // Set empty extension
-        def invalidAPICredentialsExtension = new PoEditorPluginExtension()
-        invalidAPICredentialsExtension.project_id = "invalid_project_id"
-        invalidAPICredentialsExtension.api_token = "invalid_api_oken"
-        invalidAPICredentialsExtension.default_lang = "fake_lang"
-        invalidAPICredentialsExtension.res_dir_path = "fake_path"
+        def parameters = new PoEditorPluginExtension()
+        parameters.project_id = "140991"
+        parameters.api_token = "ae0097676e6c8d6cc825247c43f12c58"
+        parameters.default_lang = "en"
+        parameters.res_dir_path = "/Users/paulhostev/Desktop"
 
-        project.extensions.add("poEditorPlugin", invalidAPICredentialsExtension)
+        project.extensions.add("poEditorPlugin", parameters)
 
         // Test this throws IllegalStateException
         ((ImportPoEditorStringsTask) task).importPoEditorStrings()

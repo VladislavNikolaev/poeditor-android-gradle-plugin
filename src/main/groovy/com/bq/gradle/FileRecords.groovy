@@ -1,6 +1,6 @@
 package com.bq.gradle
 
-import com.bq.gradle.data.ExtentionModel
+import com.bq.gradle.data.ExtensionModel
 
 import javax.xml.soap.Node
 
@@ -9,7 +9,7 @@ class FileRecords {
     private XmlParser _parser
     private def _file
     private Node _file_records
-    private ExtentionModel _model
+    private ExtensionModel _model
     private String _table_xml_String = """<resources>
                      <!-- Tablet strings -->
                     </resources>"""
