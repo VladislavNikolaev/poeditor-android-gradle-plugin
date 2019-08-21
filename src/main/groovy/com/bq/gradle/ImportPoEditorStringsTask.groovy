@@ -20,18 +20,18 @@ class ImportPoEditorStringsTask extends DefaultTask {
     void importPoEditorStrings() {
         def model = ExtensionModel.define(project)
         def api = new API(model)
-        api.list_languages({ json ->
+        api.list_languages({ json, error ->
+            if (error != null) throw error
             json.list.code.each { lang_code ->
-                if (model.contains(lang_code)) {
-                    return
-                }
-                api.translationFileInfo({ info ->
-                    api.download_translation_file(info.item, {
-                        FileRecords.import_strings(model, it, lang_code)
+                api.translation_file_info(lang_code, { info, err ->
+                    if (err != null) throw err
+                    api.download_translation_file(info.item, { file, e ->
+                        if (e != null) throw e
+                        FileRecords.import_strings(model, file, lang_code)
                     })
-                }, { throw it })
+                })
             }
-        }, { throw it })
+        })
     }
 
 }

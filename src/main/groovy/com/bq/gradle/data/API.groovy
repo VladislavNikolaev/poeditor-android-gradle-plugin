@@ -2,6 +2,7 @@ package com.bq.gradle.data
 
 import groovy.json.JsonSlurper
 
+@SuppressWarnings("GrMethodMayBeStatic")
 class API {
 
     final static String POEDITOR_API_V2_UPLOAD_URL = 'https://api.poeditor.com/v2/projects/upload'
@@ -44,7 +45,6 @@ class API {
 }
 
 class Https {
-
     def _json
     def _process
     def _response
@@ -57,16 +57,12 @@ class Https {
 
     static def post(process, callback) {
         def http = new Https(process)
-        def exception = http.check()
-        if (exception == null) callback.onSuccess(http.json())
-        else callback.onError(http.check())
+        callback.onResult(http.json(), http.check())
     }
 
     static def download(url, callback) {
         def http = new Https(['curl', '-X', 'GET', url])
-        def exception = http.check()
-        if (exception == null) callback.onSuccess(http.response())
-        else callback.onError(http.check())
+        callback.onResult(http.response(), null)
     }
 
     private def response(process = _process) {
@@ -74,17 +70,17 @@ class Https {
         _response
     }
 
-    private def json(text = _response) {
-        if (_json == null) _json = json_slurper.parseText(text)
+    private def json(text = response()) {
+        if (_json == null) _json = _json_slurper.parseText(text)
         _json
     }
 
-    private def check(response = response()) {
-        def code = response.response.code
+    private def check(json = json()) {
+        def code = json.response.code
         if (code != "200") {
             return new HttpsException(
                     code,
-                    "An error occurred while trying to export from PoEditor API: \n\n" + json().toString()
+                    "An error occurred while trying to export from PoEditor API: \n\n" + json.toString()
             )
         }
         null
@@ -92,9 +88,7 @@ class Https {
 }
 
 interface Callback {
-    def onSuccess(json, exception)
-
-    def onError(exception)
+    void onResult(json, exception)
 }
 
 class HttpsException extends IllegalStateException {

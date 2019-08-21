@@ -2,8 +2,6 @@ package com.bq.gradle
 
 import com.bq.gradle.data.ExtensionModel
 
-import javax.xml.soap.Node
-
 @SuppressWarnings(["GroovyAssignabilityCheck", "GrMethodMayBeStatic"])
 class FileRecords {
     private XmlParser _parser
@@ -28,23 +26,21 @@ class FileRecords {
                 .replace_brand_name()
                 .replace_tabel_strings_to_his_own_records()
 
-        def _file = records.file_records()
-        def _tablet_file = records.tablet_records()
         def _modifier = records.create_values_modifier_from(lang_code)
         def _folder_path = records.create_folder_path(_modifier)
         def _tablet_folder_path = records.create_folder_path(_modifier, true)
 
         println "Writing strings.xml file"
-        records.write_file(_folder_path, _file)
+        records.write_file(_folder_path, records.file_records())
 
         println "Writing tablet strings.xml file"
-        records.write_file(_tablet_folder_path, _tablet_file)
+        records.write_file(_tablet_folder_path, records.tablet_records())
 
     }
 
     def file_records(file = _file) {
         if (_file_records == null && _file != null) {
-            _file_records = _parser.parse(file)
+            _file_records = _parser.parseText(file)
         }
         _file_records
     }
@@ -94,7 +90,7 @@ class FileRecords {
         def folder_path
         if (is_tablet) folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}-sw600dp" : "values-sw600dp"
         else folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}" : "values"
-        folder_path
+        string_folder_file(folder_path)
     }
 
     def string_folder_file(folder_path) {
@@ -105,7 +101,6 @@ class FileRecords {
     }
 
     def create_dir_if_not_exists(strings_folder_file, folder_path) {
-        strings_folder_file = string_folder_file(folder_path)
         if (!strings_folder_file.exists()) {
             println "Creating ${folder_path} folder for new language"
             def folder_created = strings_folder_file.mkdir()
@@ -123,7 +118,7 @@ class FileRecords {
             if (_model.keysExcludedForReplacement.contains(it.attributes()["name"])) {
                 return
             }
-            def resultValue = it.value()[0].replaceAll(brandNameOld, brandNameNew)
+            def resultValue = it.value()[0].replace(_model.brandNameOld, _model.brandNameNew)
                     .replaceAll(brandNameOldUpperCase, brandNameNewUpperCase)
                     .replaceAll(brandNameOldCapitalized, brandNameNewCapitalized)
                     .getChars()

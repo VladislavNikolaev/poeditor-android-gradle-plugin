@@ -9,7 +9,7 @@ class ExtensionModel {
     boolean generateTabletRes = false
 
     def excludedLanguageCodes
-    def shouldReplaceBrandName = true
+    def shouldReplaceBrandName = false
 
     def keysExcludedForReplacement
 
@@ -35,24 +35,13 @@ class ExtensionModel {
 
     static ExtensionModel define(project) {
         def extensions = project.extensions
-        try {
-            builder().project(project)
-                    .apiToken(extensions.poEditorPlugin.api_token)
-                    .projectId(extensions.poEditorPlugin.project_id)
-                    .defaultLang(extensions.poEditorPlugin.default_lang)
-                    .resDirPath(extensions.poEditorPlugin.res_dir_path)
-                    .generateTabletRes(extensions.poEditorPlugin.generate_tablet_res)
-                    .build()
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "You shoud define in your build.gradle: \n\n" +
-                            "poEditorPlugin.api_token = <your_api_token>\n" +
-                            "poEditorPlugin.project_id = <your_project_id>\n" +
-                            "poEditorPlugin.default_lang = <your_default_lang> \n" +
-                            "poEditorPlugin.res_dir_path = <your_res_dir_path> \n\n "
-                            + e.getMessage()
-            )
-        }
+        builder().project(project)
+                .apiToken(extensions.poEditorPlugin.api_token)
+                .projectId(extensions.poEditorPlugin.project_id)
+                .defaultLang(extensions.poEditorPlugin.default_lang)
+                .resDirPath(extensions.poEditorPlugin.res_dir_path)
+                .generateTabletRes(extensions.poEditorPlugin.generate_tablet_res)
+                .build()
     }
 }
 
@@ -107,12 +96,12 @@ class Builder {
 
     ExtensionModel build() {
         new ExtensionModel(
-                project = _project,
-                apiToken = _apiToken,
-                projectId = _projectId,
-                defaultLang = _defaultLang,
-                resDirPath = _resDirPath,
-                generateTabletRes = _generateTabletRes
+                _project,
+                _apiToken,
+                _projectId,
+                _defaultLang,
+                _resDirPath,
+                _generateTabletRes
         )
     }
 }
