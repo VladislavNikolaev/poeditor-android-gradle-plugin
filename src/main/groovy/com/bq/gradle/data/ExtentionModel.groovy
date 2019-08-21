@@ -33,14 +33,14 @@ class ExtentionModel {
     }
 
     static ExtentionModel define(project) {
-        def extantions = project.extantions
+        def extensions = project.extensions
         try {
             builder().project(project)
-                    .apiToken(extantions.poEditorPlugin.api_token)
-                    .projectId(extantions.poEditorPlugin.project_id)
-                    .defaultLang(extantions.poEditorPlugin.default_lang)
-                    .resDirPath(extantions.poEditorPlugin.res_dir_path)
-                    .generateTabletRes(extantions.poEditorPlugin.generate_tablet_res)
+                    .apiToken(extensions.poEditorPlugin.api_token)
+                    .projectId(extensions.poEditorPlugin.project_id)
+                    .defaultLang(extensions.poEditorPlugin.default_lang)
+                    .resDirPath(extensions.poEditorPlugin.res_dir_path)
+                    .generateTabletRes(extensions.poEditorPlugin.generate_tablet_res)
                     .build()
         } catch (Exception e) {
             throw new IllegalStateException(
@@ -55,6 +55,7 @@ class ExtentionModel {
     }
 }
 
+@SuppressWarnings(["GrUnresolvedAccess", "GroovyAssignabilityCheck"])
 class Builder {
     private def _project
     private def _apiToken = ""
@@ -103,7 +104,11 @@ class Builder {
 
     ExtentionModel build() {
         new ExtentionModel(
-                _apiToken, _projectId, _defaultLang, _resDirPath, _generateTabletRes
+               project = _apiToken,
+                projectId = _projectId,
+                defaultLang = _defaultLang,
+                resDirPath = _resDirPath,
+                generateTabletRes = _generateTabletRes
         )
     }
 }
