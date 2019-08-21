@@ -2,7 +2,6 @@ package com.bq.gradle
 
 import com.bq.gradle.data.API
 import com.bq.gradle.data.ExtentionModel
-import groovy.json.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -15,9 +14,6 @@ import org.gradle.api.tasks.TaskAction
  * Created by imartinez on 11/1/16.
  */
 class ImportPoEditorStringsTask extends DefaultTask {
-
-    String POEDITOR_API_V2_UPLOAD_URL = 'https://api.poeditor.com/v2/projects/upload'
-    String POEDITOR_API_URL = 'https://poeditor.com/api/'
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     @TaskAction
