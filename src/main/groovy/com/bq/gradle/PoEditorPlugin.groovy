@@ -16,6 +16,7 @@ class PoEditorPlugin implements Plugin<Project> {
         project.extensions.create("poEditorPlugin", PoEditorPluginExtension)
 
         // Registers the task
+        project.task('exportPoEditorStrings', type: ExportPoEditorStringsTask)
         project.task('importPoEditorStrings', type: ImportPoEditorStringsTask)
     }
 

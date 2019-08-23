@@ -1,8 +1,9 @@
 package com.bq.gradle
 
 import com.bq.gradle.data.ExtensionModel
+import com.bq.gradle.data.TermBuilder
 
-@SuppressWarnings(["GroovyAssignabilityCheck", "GrMethodMayBeStatic"])
+@SuppressWarnings(['GroovyAssignabilityCheck', 'GrMethodMayBeStatic', 'GrUnresolvedAccess'])
 class FileRecords {
     private XmlParser _parser
     private def _file
@@ -13,6 +14,8 @@ class FileRecords {
                     </resources>"""
     private def _tablet_records
     private def _tablet_notes
+    private def strings_xml = 'strings.xml'
+    private def name_attr = 'name'
 
     FileRecords(model, file = null) {
         _model = model
@@ -26,29 +29,57 @@ class FileRecords {
                 .replace_brand_name()
                 .replace_tabel_strings_to_his_own_records()
 
-        def _modifier = records.create_values_modifier_from(lang_code)
+        def _modifier = records.values_modifier(lang_code)
         def _folder_path = records.create_folder_path(_modifier)
         def _tablet_folder_path = records.create_folder_path(_modifier, true)
 
-        println "Writing strings.xml file"
+        println 'Writing strings.xml file'
         records.write_file(_folder_path, records.file_records())
 
-        println "Writing tablet strings.xml file"
+        println 'Writing tablet strings.xml file'
         records.write_file(_tablet_folder_path, records.tablet_records())
 
+        records
+    }
+
+    static def new_terms_from_disk(model, file = null, records = new FileRecords(model, file)) {
+        records.new_terms_form_disk()
     }
 
     def file_records(file = _file) {
-        if (_file_records == null && _file != null) {
+        if (_file_records == null || _file != null) {
             _file_records = _parser.parseText(file)
         }
         _file_records
     }
 
     def write_file(folder_path, records = file_records()) {
-        new File(folder_path, 'strings.xml').withWriter { w ->
+        new File(folder_path, strings_xml).withWriter { w ->
             w << stringify(records)
         }
+    }
+
+    def open_file(folder = create_folder_path()) {
+        new File("${folder.path}/${strings_xml}").text
+    }
+
+    def new_terms_form_disk(
+            Node current = file_records(),
+            Node from = new FileRecords(_model).file_records(open_file())
+    ) {
+        def terms = []
+        remove_empty_nodes(current)
+        from.children().each {
+            def remove = false
+            current.each { item ->
+                remove = remove || item.attributes()[name_attr] == it.attributes()[name_attr]
+            }
+            if (!remove) {
+                terms << new TermBuilder().term(it.attributes()[name_attr]).content(it.value()[0]).build()
+            }
+            remove
+        }
+        terms
     }
 
     def stringify(records = file_records()) {
@@ -67,7 +98,7 @@ class FileRecords {
 
     def tablet_nodes(node = file_records()) {
         if (_tablet_notes == null) _tablet_notes = node.children().findAll {
-            it.@name.endsWith('_tablet', '')
+            it.@name.endsWith('_tablet')
         }
         _tablet_notes
     }
@@ -81,15 +112,15 @@ class FileRecords {
         tablet_nodes().each {
             file_records.remove(it)
             it.@name = it.@name.replace('_tablet', '')
-            tablet_records() << it
+            tablet_records().append(it)
         }
         this
     }
 
-    def create_folder_path(value_modifiler, is_tablet = false) {
+    def create_folder_path(value_modifiler = values_modifier(), is_tablet = false) {
         def folder_path
-        if (is_tablet) folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}-sw600dp" : "values-sw600dp"
-        else folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}" : "values"
+        if (is_tablet) folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}-sw600dp" : 'values-sw600dp'
+        else folder_path = value_modifiler != _model.defaultLang ? "values-${value_modifiler}" : 'values'
         string_folder_file(folder_path)
     }
 
@@ -115,10 +146,11 @@ class FileRecords {
         def brandNameOldCapitalized = _model.brandNameOld.toLowerCase().capitalize()
         def brandNameNewCapitalized = _model.brandNameNew.toLowerCase().capitalize()
         rootNode.children().each {
-            if (_model.keysExcludedForReplacement.contains(it.attributes()["name"])) {
+            if (_model.keysExcludedForReplacement.contains(it.attributes()[name_attr])) {
                 return
             }
-            def resultValue = it.value()[0].replace(_model.brandNameOld, _model.brandNameNew)
+            def resultValue = it.value()[0]
+                    .replaceAll(_model.brandNameOld, _model.brandNameNew)
                     .replaceAll(brandNameOldUpperCase, brandNameNewUpperCase)
                     .replaceAll(brandNameOldCapitalized, brandNameNewCapitalized)
                     .getChars()
@@ -128,7 +160,7 @@ class FileRecords {
 
     def remove_empty_nodes(Node root_node = file_records()) {
         def emptyNodes = root_node.children().findAll {
-            it.name() == "string" && it.value().size() == 0
+            return it.name() == "string" && it.value().size() == 0
         }
         emptyNodes.each {
             root_node.remove(it)
@@ -136,12 +168,12 @@ class FileRecords {
         this
     }
 
-    String create_values_modifier_from(String langCode) {
-        if (!langCode.contains("-")) {
+    String values_modifier(String langCode = _model.defaultLang) {
+        if (!langCode.contains('-')) {
             return langCode
         } else {
-            String[] langParts = langCode.split("-")
-            return langParts[0] + "-" + "r" + langParts[1].toUpperCase()
+            String[] langParts = langCode.split('-')
+            return langParts[0] + '-' + 'r' + langParts[1].toUpperCase()
         }
     }
 
