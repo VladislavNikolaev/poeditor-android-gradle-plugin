@@ -1,17 +1,61 @@
 package com.bq.gradle.data
 
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
-@SuppressWarnings("GrMethodMayBeStatic")
+@SuppressWarnings(['GrMethodMayBeStatic', 'GroovyAssignabilityCheck'])
 class API {
 
-    final static String POEDITOR_API_V2_UPLOAD_URL = 'https://api.poeditor.com/v2/projects/upload'
     final static String POEDITOR_API_URL = 'https://poeditor.com/api/'
+    final static String POEDITOR_API_V2_URL = 'https://api.poeditor.com/v2/'
+    final static String POEDITOR_API_V2_UPLOAD_URL = POEDITOR_API_V2_URL + 'projects/upload'
+    final static String POEDITOR_API_V2_ADD_TERMS_URL = POEDITOR_API_V2_URL + 'terms/add'
+    final static String POEDITOR_API_V2_LANG_UPDATE_URL = POEDITOR_API_V2_URL + 'languages/update'
 
-    def model
+    ExtensionModel model
 
     API(ExtensionModel model) {
         this.model = model
+    }
+
+    def default_lang_update(terms_list, callback) {
+        languages_update(model.defaultLang, terms_list, callback)
+
+        /*
+        add_terms(terms_list, { res, err ->
+            if (err != null) {
+                throwing err.message()
+            } else {
+                languages_update(model.defaultLang, terms_list, callback)
+            }
+        })
+        */
+    }
+
+    def add_terms(term_list, callback) {
+        def terms_single_list = single_terms term_list
+        def json = new JsonBuilder(terms_single_list).toPrettyString()
+        Https.post(
+                ['curl', '-X', 'POST',
+                 '-d', "api_token=${model.apiToken}",
+                 '-d', "id=${model.projectId}",
+                 '-d', "data=${json}",
+                 POEDITOR_API_V2_ADD_TERMS_URL],
+                callback)
+    }
+
+    def languages_update(leng_code, term_list, Callback callback) {
+        def json = new JsonBuilder(term_list).toPrettyString()
+        Https.post(
+                ['curl', '-X', 'POST',
+                 '-d', "api_token=${model.apiToken}",
+                 '-d', 'action=update_language',
+                 '-d', "id=${model.projectId}",
+                 '-d', "language=${leng_code}",
+                 '-d', "data=${json}",
+                 POEDITOR_API_URL],
+                callback
+        )
     }
 
     def list_languages(Callback callback) {
@@ -42,6 +86,16 @@ class API {
         Https.download(url, callback)
     }
 
+    private List<TermSingle> single_terms(List<Term> terms) {
+        List<TermSingle> singles = new ArrayList<TermSingle>()
+        terms.each {
+            singles.add(new TermSingle(
+                    term: it.term
+            ))
+        }
+        return singles
+    }
+
 }
 
 class Https {
@@ -55,12 +109,12 @@ class Https {
         _process = process
     }
 
-    static def post(process, callback) {
+    static def post(process, Callback callback) {
         def http = new Https(process)
         callback.onResult(http.json(), http.check())
     }
 
-    static def download(url, callback) {
+    static def download(url, Callback callback) {
         def http = new Https(['curl', '-X', 'GET', url])
         callback.onResult(http.response(), null)
     }
@@ -85,10 +139,6 @@ class Https {
         }
         null
     }
-}
-
-interface Callback {
-    void onResult(json, exception)
 }
 
 class HttpsException extends IllegalStateException {
