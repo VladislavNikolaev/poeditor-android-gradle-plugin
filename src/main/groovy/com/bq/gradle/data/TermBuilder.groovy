@@ -2,7 +2,6 @@ package com.bq.gradle.data
 
 
 class Term extends TermSingle {
-    String context
     Translation translation
 }
 
@@ -12,7 +11,6 @@ class TermSingle {
 
 class Translation {
     String content
-    Integer fuzzy = 0
 }
 
 class TermBuilder {
@@ -32,10 +30,8 @@ class TermBuilder {
     def build() {
         new Term(
                 term: _term,
-                context: _content,
                 translation: new Translation(
-                        content: _content,
-                        fuzzy: 0
+                        content: _content
                 )
         )
     }

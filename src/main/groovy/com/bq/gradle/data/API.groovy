@@ -1,7 +1,10 @@
 package com.bq.gradle.data
 
+
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+
+import static com.bq.gradle.ExportPoEditorStringsTask.throwing
 
 @SuppressWarnings(['GrMethodMayBeStatic', 'GroovyAssignabilityCheck'])
 class API {
@@ -19,17 +22,11 @@ class API {
     }
 
     def default_lang_update(terms_list, callback) {
-        languages_update(model.defaultLang, terms_list, callback)
-
-        /*
         add_terms(terms_list, { res, err ->
-            if (err != null) {
-                throwing err.message()
-            } else {
-                languages_update(model.defaultLang, terms_list, callback)
-            }
+            throwing err
+            languages_update(model.defaultLang, terms_list, callback)
         })
-        */
+
     }
 
     def add_terms(term_list, callback) {
@@ -49,11 +46,10 @@ class API {
         Https.post(
                 ['curl', '-X', 'POST',
                  '-d', "api_token=${model.apiToken}",
-                 '-d', 'action=update_language',
                  '-d', "id=${model.projectId}",
                  '-d', "language=${leng_code}",
                  '-d', "data=${json}",
-                 POEDITOR_API_URL],
+                 POEDITOR_API_V2_LANG_UPDATE_URL],
                 callback
         )
     }

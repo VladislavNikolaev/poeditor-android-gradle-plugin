@@ -33,10 +33,10 @@ class FileRecords {
         def _folder_path = records.create_folder_path(_modifier)
         def _tablet_folder_path = records.create_folder_path(_modifier, true)
 
-        println 'Writing strings.xml file'
+        println "Writing ${_folder_path}/strings.xml file"
         records.write_file(_folder_path, records.file_records())
 
-        println 'Writing tablet strings.xml file'
+        println "Writing ${_tablet_folder_path}/strings.xml file"
         records.write_file(_tablet_folder_path, records.tablet_records())
 
         records

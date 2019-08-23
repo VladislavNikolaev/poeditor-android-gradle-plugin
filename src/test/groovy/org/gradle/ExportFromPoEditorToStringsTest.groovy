@@ -19,6 +19,8 @@ class ExportFromPoEditorToStringsTest {
 
         //TODO: Add your parameters for test
 
+        project.extensions.add('poEditorPlugin', parameters)
+
         // Test this throws IllegalStateException
         ((ExportPoEditorStringsTask) task).exportPoEditorStrings()
     }

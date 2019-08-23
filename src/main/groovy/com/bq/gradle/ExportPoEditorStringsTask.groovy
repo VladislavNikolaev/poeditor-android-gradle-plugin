@@ -20,6 +20,7 @@ class ExportPoEditorStringsTask extends DefaultTask {
     void exportPoEditorStrings() {
         def model = ExtensionModel.define(project)
         def api = new API(model)
+        println 'Started exporting strings to the POEditor'
         api.translation_file_info(model.defaultLang, { info, err ->
             throwing err
             api.download_translation_file(info.item, { file, e ->
@@ -28,13 +29,17 @@ class ExportPoEditorStringsTask extends DefaultTask {
                 if (terms != []) {
                     api.default_lang_update(terms, { response, error ->
                         throwing error
-                        println(response)
+                        println 'EXPORT SUCCESS:'
+                        terms.each {
+                            println "term: ${it.term}, translation: ${it.translation.content}"
+                        }
                     })
                 } else println 'Nothing export to the POEditor'
+                println 'FINISHED!'
             })
         })
     }
 
-    def throwing(error) { if (error != null) println error.message }
+    static def throwing(error) { if (error != null) throw error.message }
 
 }

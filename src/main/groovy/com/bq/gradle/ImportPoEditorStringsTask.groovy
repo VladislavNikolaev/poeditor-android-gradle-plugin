@@ -5,6 +5,8 @@ import com.bq.gradle.data.ExtensionModel
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
+import static com.bq.gradle.ExportPoEditorStringsTask.throwing
+
 /**
  * Task that:
  * 1. downloads all strings files (every available lang) from PoEditor given a api_token and project_id.
@@ -20,14 +22,16 @@ class ImportPoEditorStringsTask extends DefaultTask {
     void importPoEditorStrings() {
         def model = ExtensionModel.define(project)
         def api = new API(model)
+        println 'Started importing strings from the POEditor'
         api.list_languages({ json, error ->
-            if (error != null) throw error
+            throwing error
             json.list.code.each { lang_code ->
                 api.translation_file_info(lang_code, { info, err ->
-                    if (err != null) throw err
+                    throwing err
                     api.download_translation_file(info.item, { file, e ->
-                        if (e != null) throw e
+                        throwing e
                         FileRecords.import_strings(model, file, lang_code)
+                        println "IMPORTING SUCCESS!"
                     })
                 })
             }
