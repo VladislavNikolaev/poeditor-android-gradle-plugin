@@ -23,21 +23,24 @@ class FileRecords {
         _parser = new XmlParser()
     }
 
-    static def import_strings(model, file, lang_code) {
+
+    static def import_strings(model, file, lang_code, create_for_tablet = false) {
         FileRecords records = new FileRecords(model, file)
                 .remove_empty_nodes()
                 .replace_brand_name()
-                .replace_tabel_strings_to_his_own_records()
 
         def _modifier = records.values_modifier(lang_code)
         def _folder_path = records.create_folder_path(_modifier)
-        def _tablet_folder_path = records.create_folder_path(_modifier, true)
+
+        if (create_for_tablet) {
+            records.replace_tabel_strings_to_his_own_records()
+            def _tablet_folder_path = records.create_folder_path(_modifier, create_for_tablet)
+            println "Writing ${_tablet_folder_path}/strings.xml file"
+            records.write_file(_tablet_folder_path, records.tablet_records())
+        }
 
         println "Writing ${_folder_path}/strings.xml file"
         records.write_file(_folder_path, records.file_records())
-
-        println "Writing ${_tablet_folder_path}/strings.xml file"
-        records.write_file(_tablet_folder_path, records.tablet_records())
 
         records
     }
