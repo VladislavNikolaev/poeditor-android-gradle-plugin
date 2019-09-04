@@ -17,27 +17,36 @@ class FileRecords {
     private def strings_xml = 'strings.xml'
     private def name_attr = 'name'
 
-    FileRecords(model, file = null) {
+    FileRecords(model, file) {
         _model = model
         _file = file
         _parser = new XmlParser()
+        _file_records = _parser.parseText(file)
+
     }
 
-    static def import_strings(model, file, lang_code) {
+    def set_file(file){
+        _file = file
+        _file_records = _parser.parseText(file)
+    }
+
+    static def import_strings(model, file, lang_code, create_for_tablet = false) {
         FileRecords records = new FileRecords(model, file)
                 .remove_empty_nodes()
                 .replace_brand_name()
-                .replace_tabel_strings_to_his_own_records()
 
         def _modifier = records.values_modifier(lang_code)
         def _folder_path = records.create_folder_path(_modifier)
-        def _tablet_folder_path = records.create_folder_path(_modifier, true)
+
+        if (create_for_tablet) {
+            records.replace_tabel_strings_to_his_own_records()
+            def _tablet_folder_path = records.create_folder_path(_modifier, create_for_tablet)
+            println "Writing ${_tablet_folder_path}/strings.xml file"
+            records.write_file(_tablet_folder_path, records.tablet_records())
+        }
 
         println "Writing ${_folder_path}/strings.xml file"
         records.write_file(_folder_path, records.file_records())
-
-        println "Writing ${_tablet_folder_path}/strings.xml file"
-        records.write_file(_tablet_folder_path, records.tablet_records())
 
         records
     }
@@ -46,11 +55,8 @@ class FileRecords {
         records.new_terms_form_disk()
     }
 
-    def file_records(file = _file) {
-        if (_file_records == null || _file != null) {
-            _file_records = _parser.parseText(file)
-        }
-        _file_records
+    def file_records() {
+       return  _file_records
     }
 
     def write_file(folder_path, records = file_records()) {
@@ -65,7 +71,7 @@ class FileRecords {
 
     def new_terms_form_disk(
             Node current = file_records(),
-            Node from = new FileRecords(_model).file_records(open_file())
+            Node from = new FileRecords(_model, open_file()).file_records()
     ) {
         def terms = []
         remove_empty_nodes(current)
