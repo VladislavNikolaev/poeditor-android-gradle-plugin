@@ -26,14 +26,16 @@ class ImportPoEditorStringsTask extends DefaultTask {
         api.list_languages({ json, error ->
             throwing error
             json.list.code.each { lang_code ->
-                api.translation_file_info(lang_code, { info, err ->
-                    throwing err
-                    api.download_translation_file(info.item, { file, e ->
-                        throwing e
-                        FileRecords.import_strings(model, file, lang_code)
-                        println "IMPORTING SUCCESS!"
+                if (!model.excludedLanguageCodes.contains(lang_code)) {
+                    api.translation_file_info(lang_code, { info, err ->
+                        throwing err
+                        api.download_translation_file(info.item, { file, e ->
+                            throwing e
+                            FileRecords.import_strings(model, file, lang_code)
+                            println "IMPORTING SUCCESS!"
+                        })
                     })
-                })
+                }
             }
         })
     }
