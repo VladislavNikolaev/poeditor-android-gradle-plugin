@@ -8,7 +8,7 @@ class ExtensionModel {
     def resDirPath = ""
     boolean generateTabletRes = false
 
-    def excludedLanguageCodes = ""
+    def excludedLanguageCodes
     def shouldReplaceBrandName = false
 
     def keysExcludedForReplacement
