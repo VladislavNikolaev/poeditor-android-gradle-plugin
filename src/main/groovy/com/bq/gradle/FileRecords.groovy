@@ -148,7 +148,6 @@ class FileRecords {
 
     String apply_replacement_of_values(Node rootNode = file_records()) {
         def brandNameOldLowerCase = _model.brandNameOld.toLowerCase()
-        def brandNameNewLowerCase = _model.brandNameNew.toLowerCase()
         def brandNameOldUpperCase = _model.brandNameOld.toUpperCase()
         def brandNameNewUpperCase = _model.brandNameNew.toUpperCase()
         def brandNameOldCapitalized = _model.brandNameOld.toLowerCase().capitalize()
@@ -158,7 +157,7 @@ class FileRecords {
                 return
             }
             def resultValue = it.value()[0]
-                    .replaceAll(brandNameOldLowerCase, brandNameNewLowerCase)
+                    .replaceAll(brandNameOldLowerCase, brandNameNewCapitalized)
                     .replaceAll(brandNameOldUpperCase, brandNameNewUpperCase)
                     .replaceAll(brandNameOldCapitalized, brandNameNewCapitalized)
                     .getChars()
