@@ -9,9 +9,9 @@ import static com.bq.gradle.ExportPoEditorStringsTask.throwing
 @SuppressWarnings(['GrMethodMayBeStatic', 'GroovyAssignabilityCheck'])
 class API {
 
-    final static String POEDITOR_API_URL = 'https://poeditor.com/api/'
     final static String POEDITOR_API_V2_URL = 'https://api.poeditor.com/v2/'
-    final static String POEDITOR_API_V2_UPLOAD_URL = POEDITOR_API_V2_URL + 'projects/upload'
+    final static String POEDITOR_API_V2_LANGUAGE_LIST_URL = POEDITOR_API_V2_URL + 'languages/list'
+    final static String POEDITOR_API_V2_FILE_EXPORT_URL = POEDITOR_API_V2_URL + 'projects/export'
     final static String POEDITOR_API_V2_ADD_TERMS_URL = POEDITOR_API_V2_URL + 'terms/add'
     final static String POEDITOR_API_V2_LANG_UPDATE_URL = POEDITOR_API_V2_URL + 'languages/update'
 
@@ -58,9 +58,8 @@ class API {
         Https.post(
                 ['curl', '-X', 'POST',
                  '-d', "api_token=${model.apiToken}",
-                 '-d', 'action=list_languages',
                  '-d', "id=${model.projectId}",
-                 POEDITOR_API_URL],
+                 POEDITOR_API_V2_LANGUAGE_LIST_URL],
                 callback
         )
     }
@@ -69,11 +68,10 @@ class API {
         Https.post(
                 ['curl', '-X', 'POST',
                  '-d', "api_token=${model.apiToken}",
-                 '-d', 'action=export',
                  '-d', "id=${model.projectId}",
                  '-d', 'type=android_strings',
                  '-d', "language=${language}",
-                 POEDITOR_API_URL],
+                 POEDITOR_API_V2_FILE_EXPORT_URL],
                 callback
         )
     }

@@ -25,11 +25,11 @@ class ImportPoEditorStringsTask extends DefaultTask {
         println 'Started importing strings from the POEditor'
         api.list_languages({ json, error ->
             throwing error
-            json.list.code.each { lang_code ->
+            json.result.languages.code.each { lang_code ->
                 if (!model.excludedLanguageCodes.contains(lang_code)) {
-                    api.translation_file_info(lang_code, { info, err ->
+                    api.translation_file_info(lang_code, { result, err ->
                         throwing err
-                        api.download_translation_file(info.item, { file, e ->
+                        api.download_translation_file(result.result.url, { file, e ->
                             throwing e
                             FileRecords.import_strings(model, file, lang_code)
                             println "IMPORTING SUCCESS!"
