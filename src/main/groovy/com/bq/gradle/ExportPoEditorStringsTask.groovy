@@ -23,7 +23,7 @@ class ExportPoEditorStringsTask extends DefaultTask {
         println 'Started exporting strings to the POEditor'
         api.translation_file_info(model.defaultLang, { info, err ->
             throwing err
-            api.download_translation_file(info.item, { file, e ->
+            api.download_translation_file(info.result.url, { file, e ->
                 throwing e
                 def terms = FileRecords.new_terms_from_disk(model, file)
                 if (terms != []) {
